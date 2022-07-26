@@ -1,2 +1,2 @@
 # AMCA
-Accelerated Monte Carlo for American-Options.
+Accelerated Monte Carlo for American-Options (AMCA).
