@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from numba import jit, njit
 
 @jit(nopython=True, fastmath=True)
 def _coeff_mat(x, deg):

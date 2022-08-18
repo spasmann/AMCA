@@ -5,14 +5,12 @@ Created on Sun Jul 24 09:13:55 2022
 
 @author: sampasmann
 """
-import time
 import numpy as np
 from numba import njit, jit, vectorize
 from scipy.stats import qmc
-from mpi4py import MPI
-
+from linear_regression import fit_poly, eval_polynomial
 @njit
-def AMCA(option_type, S0, strike, T, M, r, div, sigma, simulations):
+def AMCA(option_type, S0, strike, T, M, r, div, sigma, N):
     """ Class for American options pricing using Longstaff-Schwartz (2001):
     "Valuing American Options by Simulation: A Simple Least-Squares Approach."
     Review of Financial Studies, Vol. 14, 113-147.
@@ -55,10 +53,6 @@ def AMCA(option_type, S0, strike, T, M, r, div, sigma, simulations):
     if (S0 < 0 )or (strike < 0) or (T <= 0) or (r < 0) or (div < 0) or sigma < 0:
         raise ValueError('Error: Negative inputs not allowed')
         """
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    nproc = comm.Get_size()
-    procname = MPI.Get_processor_name()
 
     dt = T / float(M)
     discount = np.exp(-r*dt)
@@ -98,7 +92,6 @@ def MCpayoff(option_type, MCprice_matrix, strike, M, N):
         payoff = np.maximum(strike - MCprice_matrix,
                         np.zeros((M+1, N),
                         dtype=np.float64))
-
     return payoff
 
 @jit(nopython=True, fastmath=True)
@@ -152,5 +145,5 @@ if (__name__=="__main__"):
     r       = 0.06  # constant risk free short rate
     div     = 0.06  # (dividend yield)
     N       = 10000 # Number of simulations per time step (T/M)
-
-    AMCA('put', S0, strike, T, M, r, div, sigma, N)
+    #time_test()
+    #AMCA('put', S0, strike, T, M, r, div, sigma, N)
