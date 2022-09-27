@@ -4,16 +4,21 @@
 Created on Sun Jul 24 09:13:55 2022
 
 @author: sampasmann
+
+modified from:
+    https://github.com/jpcolino/IPython_notebooks/blob/master/Least%20Square%20Monte%20Carlo%20Implementation%20in%20a%20Python%20Class.ipynb
 """
 import numpy as np
 from numba import njit, jit, vectorize
 from scipy.stats import qmc
 from linear_regression import fit_poly, eval_polynomial
+
 @njit
 def AMCA(option_type, S0, strike, T, M, r, div, sigma, N):
     """ Class for American options pricing using Longstaff-Schwartz (2001):
     "Valuing American Options by Simulation: A Simple Least-Squares Approach."
     Review of Financial Studies, Vol. 14, 113-147.
+    
     S0 : float : initial stock/index level
     strike : float : strike price
     T : float : time to maturity (in year fractions)
@@ -88,10 +93,14 @@ def MCpayoff(option_type, MCprice_matrix, strike, M, N):
         payoff = np.maximum(MCprice_matrix - strike,
                        np.zeros((M+1, N),
                        dtype=np.float64))
-    else:
+    elif (option_type == 'put'):
         payoff = np.maximum(strike - MCprice_matrix,
                         np.zeros((M+1, N),
                         dtype=np.float64))
+    else:
+        print("Invalid Option Type")
+        Exception
+        
     return payoff
 
 @jit(nopython=True, fastmath=True)
@@ -133,17 +142,16 @@ def time_test():
     return print("Duration in Seconds %6.3f" % d1)
 
 if (__name__=="__main__"):
-    
-    import time
 
-
-    S0      = 36.0  # underlying stock price
-    strike  = 40.0  # strike price
-    T       = 1.0   # Time in years
-    sigma   = 0.4   # variance
-    M       = 50    # Number of exercise opportunities per year
-    r       = 0.06  # constant risk free short rate
+    S0      = 155.87  # underlying stock price
+    strike  = 155.87  # strike price
+    T       = 3.0   # Time in years
+    sigma   = 0.018   # variance
+    M       = 252    # Number of exercise opportunities per year
+    r       = 0.86  # constant risk free short rate
     div     = 0.06  # (dividend yield)
-    N       = 10000 # Number of simulations per time step (T/M)
+    N       = 100000 # Number of simulations per time step (T/M)
     #time_test()
-    #AMCA('put', S0, strike, T, M, r, div, sigma, N)
+    #import time
+    print("Price: ", AMCA('call', S0, strike, T, M, r, div, sigma, 100))
+    print("Price: ",AMCA('call', S0, strike, T, M, r, div, sigma, N))
